@@ -1,0 +1,140 @@
+# -------------------------------------------------------------------------- #
+#                                   Profile                                   #
+# -------------------------------------------------------------------------- #
+
+[profile]
+url = "https://www.pokecommunity.com/members/mab.210532/"
+post-count-query = ".memberHeader-stats dd a[href='/search/member?user_id=210532']"
+
+# -------------------------------------------------------------------------- #
+#                                    Types                                   #
+# -------------------------------------------------------------------------- #
+
+[types.normal]
+name = "Normal"
+icon = "balance-scale"
+color = [168, 168, 120]
+
+[types.fire]
+name = "Fire"
+icon = "fire"
+color = [240, 128, 48]
+
+[types.fighting]
+name = "Fighting"
+icon = "fist-raised"
+color = [192, 48, 40]
+
+[types.water]
+name = "Water"
+icon = "water"
+color = [104, 144, 240]
+
+[types.flying]
+name = "Flying"
+icon = "feather-alt"
+color = [168, 144, 240]
+
+[types.grass]
+name = "Grass"
+icon = 'leaf'
+color = [120, 200, 80]
+
+[types.poison]
+name = "Poison"
+icon = 'flask'
+color = [160, 64, 160]
+
+[types.electric]
+name = "Electric"
+icon = 'bolt'
+color = [248, 208, 48]
+
+[types.ground]
+name = "Ground"
+icon = 'globe'
+color = [224, 192, 104]
+
+[types.psychic]
+name = "Psychic"
+icon = 'eye'
+color = [248, 88, 136]
+
+[types.rock]
+name = "Rock"
+icon = 'gem'
+color = [184, 160, 56]
+
+[types.ice]
+name = "Ice"
+icon = 'icicles'
+color = [152, 216, 216]
+
+[types.bug]
+name = "Bug"
+icon = 'bug'
+color = [168, 184, 32]
+
+[types.dragon]
+name = "Dragon"
+icon = 'dragon'
+color = [112, 56, 248]
+
+[types.ghost]
+name = "Ghost"
+icon = 'ghost'
+color = [112, 88, 152]
+
+[types.dark]
+name = "Dark"
+icon = 'moon'
+color = [112, 88, 72]
+
+[types.steel]
+name = "Steel"
+icon = 'robot'
+color = [184, 184, 208]
+
+[types.fairy]
+name = "Fairy"
+icon = 'sparkles'
+color = [238, 153, 172]
+
+# -------------------------------------------------------------------------- #
+#                                   Pokemon                                  #
+# -------------------------------------------------------------------------- #
+
+[pokemon.sleepy]
+name = "Sleepy"
+species = { line = "dratini" }
+growth = { start = 8482, hatch = 8497, grown = 8642 }
+points = 60
+
+[pokemon.belle]
+name = "Belle"
+species = { line = "oddish", to = "bellossom" }
+growth = { start = 7619, hatch = 7634, grown = 7794 }
+points = 70
+
+[pokemon.canon_gay]
+name = "Canonically Gay"
+species = { exact = "pikachu" }
+growth = "grown"
+shiny = true
+points = 0
+
+[pokemon.rainy]
+name = "Rainy"
+species = { line = "psyduck" }
+growth = { start = 7459, hatch = 7474, grown = 7619 }
+points = 60
+
+# -------------------------------------------------------------------------- #
+#                                    Rooms                                   #
+# -------------------------------------------------------------------------- #
+
+[rooms.island]
+name = "Island"
+
+[rooms.island.pokemon.rainy]
+position = { bottom = 239, right = 180 }
