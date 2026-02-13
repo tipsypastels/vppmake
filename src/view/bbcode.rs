@@ -1,7 +1,8 @@
-use anyhow::Result;
-use std::fmt::{self, Display, Write};
+#![allow(unused)]
 
 use crate::utils::all_the_tuples;
+use anyhow::Result;
+use std::fmt::{self, Display, Write};
 
 #[derive(Debug)]
 pub struct BBCode(String);

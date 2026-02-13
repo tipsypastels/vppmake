@@ -45,11 +45,11 @@ fn render_room(bb: &mut BBCode, state: &State, room: &Room) -> Result<()> {
     })
     .tag("slide", |bb| {
         bb.tag_with("div", Css::new().set("position", "relative"), |bb| {
-            bb.tag_with("cimg", "user-select:none", |bb| {
+            bb.tag_with("cimg", Css::new().set("user-select", "none"), |bb| {
                 bb.text(room_asset(&room.key));
             });
-            for (member_i, member) in room.pokemon.values().enumerate() {
-                render_room_member_sprite(bb, state, room, member_i, member)?;
+            for member in room.pokemon.values() {
+                render_room_member_sprite(bb, state, member)?;
             }
             Ok(())
         })?
@@ -66,33 +66,26 @@ fn render_room(bb: &mut BBCode, state: &State, room: &Room) -> Result<()> {
     Ok(())
 }
 
-fn render_room_member_sprite(
-    bb: &mut BBCode,
-    state: &State,
-    room: &Room,
-    i: usize,
-    member: &RoomMember,
-) -> Result<()> {
-    let tab_no = i + 1;
+fn render_room_member_sprite(bb: &mut BBCode, state: &State, member: &RoomMember) -> Result<()> {
     let pokemon = state.src.pokemon.find(&member.key)?;
     let growth = state.growth_state(pokemon)?;
     let species = growth.species_key();
 
     let sprite_css = Css::new()
+        .set("cursor", "default")
+        .set("user-select", "none")
         .set("position", "absolute")
         .setopt(member.flipped, "transform", "scaleX(-1)")
         .setopt(pokemon.shiny, "background-image", SPARKLE)
         .extend(absolute(member.position.unpack()));
 
     bb.tag_with("title", &pokemon.name, |bb| {
-        bb.tag_with_unquoted("tab", tab_no, |bb| {
-            bb.tag_with("cimg", sprite_css, |bb| {
-                if let Some(species) = species {
-                    bb.text(pokemon_asset(&pokemon.key, species));
-                } else {
-                    bb.text(egg_asset());
-                }
-            });
+        bb.tag_with("cimg", sprite_css, |bb| {
+            if let Some(species) = species {
+                bb.text(pokemon_asset(&pokemon.key, species));
+            } else {
+                bb.text(egg_asset());
+            }
         });
     });
 
