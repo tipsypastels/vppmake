@@ -4,7 +4,7 @@ use self::growth::GrowthState;
 use crate::model::{Map, MapFind, Source, pokemon::Pokemon, species::Species};
 use anyhow::Result;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct State {
     pub src: Source,
     pub species: Map<Species>,

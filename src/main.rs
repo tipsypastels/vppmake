@@ -5,26 +5,10 @@ mod view;
 
 use self::{model::Source, state::State};
 use anyhow::{Context, Result};
-use clap::{Parser, Subcommand};
-use std::path::Path;
-
-#[derive(Parser)]
-struct Cli {
-    #[clap(subcommand)]
-    command: Command,
-}
-
-#[derive(Subcommand)]
-enum Command {
-    Make { src: Box<Path> },
-}
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let cli = Cli::parse();
-    let Command::Make { src: src_path } = cli.command;
-
-    let src_text = fs_err::tokio::read_to_string(&src_path).await?;
+    let src_text = include_str!("../VPP.toml");
     let src_text = add_keys_to_table_values(&src_text)?;
     let src: Source = toml::from_str(&src_text)?;
 

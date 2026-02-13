@@ -145,11 +145,37 @@ points = 60
 #                                    Rooms                                   #
 # -------------------------------------------------------------------------- #
 
+# --------------------------------- Island --------------------------------- #
+
 [rooms.island]
 name = "Island"
 
 [rooms.island.pokemon.rainy]
 position = { bottom = 239, right = 180 }
 
-[rooms.island.pokemon.oracle]
-position = { bottom = 239, right = 180 }
+[rooms.island.pokemon.froggy]
+position = { bottom = 146, right = 75 }
+
+[rooms.island.pokemon.sleepy]
+position = { bottom = 150, left = 70 }
+flipped = true
+
+# ----------------------------- Mushroom Forest ---------------------------- #
+
+[rooms.mushroom_forest]
+name = "Mushroom Forest"
+
+[rooms.mushroom_forest.pokemon.belle]
+position = { bottom = 170, right = 8 }
+
+# ------------------------------ Ravaged Plain ----------------------------- #
+
+[rooms.ravaged_plain]
+name = "Ravaged Plain"
+
+[rooms.ravaged_plain.pokemon.canon_gay]
+position = { right = 350, bottom = 230 }
+
+[rooms.ravaged_plain.pokemon.oracle]
+position = { right = 430, bottom = 255 }
+flipped = true
