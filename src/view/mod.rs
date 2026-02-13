@@ -10,7 +10,7 @@ use self::{
 };
 use crate::{model::MapFind, state::State};
 use anyhow::Result;
-use assets::room_asset;
+use assets::{egg_asset, pokemon_asset, room_asset};
 
 const SPARKLE: &str = "url('/images/sparkle.gif')";
 const TABS_WIDTH: usize = 500;
@@ -51,6 +51,7 @@ pub fn render_room(bb: &mut BBCode, state: &State) -> Result<()> {
                 for placement in room.pokemon.values() {
                     let pokemon = state.src.pokemon.find(&placement.key)?;
                     let growth = state.growth_state(pokemon)?;
+                    let species = growth.species_key();
 
                     let sprite_css = Css::new()
                         .set("position", "absolute")
@@ -58,8 +59,12 @@ pub fn render_room(bb: &mut BBCode, state: &State) -> Result<()> {
                         .setopt(pokemon.shiny, "background-image", SPARKLE)
                         .extend(absolute(placement.position.unpack()));
 
-                    bb.tag_with("div", sprite_css, |bb| {
-                        bb.text(&pokemon.name);
+                    bb.tag_with("cimg", sprite_css, |bb| {
+                        if let Some(species) = species {
+                            bb.text(pokemon_asset(&pokemon.key, species));
+                        } else {
+                            bb.text(egg_asset());
+                        }
                     });
                 }
                 Ok(())
