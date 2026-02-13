@@ -94,6 +94,11 @@ fn render_room_member_sprite(bb: &mut BBCode, state: &State, member: &RoomMember
 
 fn render_room_member_info(bb: &mut BBCode, state: &State, member: &RoomMember) -> Result<()> {
     let pokemon = state.src.pokemon.find(&member.key)?;
+    let growth = state.growth_state(pokemon)?;
+    let species = growth
+        .species_key()
+        .map(|key| state.species.find(key))
+        .transpose()?;
 
     bb.tag("slide_header", |bb| {
         bb.tag_with("div", Css::new().set("margin", TABS_HEADER_PADDING), |bb| {
@@ -101,6 +106,19 @@ fn render_room_member_info(bb: &mut BBCode, state: &State, member: &RoomMember) 
         });
     })
     .tag("slide", |bb| {
+        bb.tag_with(
+            "div",
+            Css::new()
+                .set("font-weight", "bold")
+                .set("font-size", "1.25rem")
+                .set("margin-bottom", "0.5rem"),
+            |bb| {
+                bb.text("\"")
+                    .text(&pokemon.name)
+                    .text("\" the ")
+                    .text(species.map(|s| s.name.as_str()).unwrap_or("Egg"));
+            },
+        );
         bb.text(format!("{pokemon:?}"));
     });
 
