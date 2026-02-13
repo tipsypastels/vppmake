@@ -2,6 +2,10 @@
 const BASE: &str =
     "https://raw.githubusercontent.com/tipsypastels/vppmake/refs/heads/rewrite/assets/";
 
+pub fn pokemon_asset(key: &str, species_key: &str) -> Box<str> {
+    asset(["pokemon/", key, "-", species_key, ".png"])
+}
+
 pub fn room_asset(room_key: &str) -> Box<str> {
     asset(["rooms/", room_key, ".png"])
 }

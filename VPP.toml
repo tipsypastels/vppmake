@@ -116,7 +116,7 @@ species = { line = "oddish", to = "bellossom" }
 growth = { start = 7619, hatch = 7634, grown = 7794 }
 points = 70
 
-[pokemon.canon_gay]
+[pokemon.canon-gay]
 name = "Canonically Gay"
 species = { exact = "pikachu-gmax" }
 growth = "grown"
@@ -176,7 +176,7 @@ position = { bottom = 170, right = 8 }
 name = "Ravaged Plain"
 color = [248, 224, 88]
 
-[rooms.ravaged_plain.pokemon.canon_gay]
+[rooms.ravaged_plain.pokemon.canon-gay]
 position = { right = 350, bottom = 230 }
 
 [rooms.ravaged_plain.pokemon.oracle]
