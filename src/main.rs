@@ -1,6 +1,7 @@
 mod model;
 mod query;
 mod state;
+mod utils;
 mod view;
 
 use self::{model::Source, state::State};

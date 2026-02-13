@@ -1,6 +1,8 @@
 use anyhow::Result;
 use std::fmt::{self, Display, Write};
 
+use crate::utils::all_the_tuples;
+
 #[derive(Debug)]
 pub struct BBCode(String);
 
@@ -25,7 +27,19 @@ impl BBCode {
     where
         T: BBCodeCallbackOutput,
     {
-        self.tag_impl(name, Some(value), f)
+        self.tag_impl(name, Some(SingleArg(value)), f)
+    }
+
+    pub fn tag_with_multi<T>(
+        &mut self,
+        name: impl Display,
+        value: impl BBCodeMultiArgs,
+        f: impl FnOnce(&mut Self) -> T,
+    ) -> T::WithThis<'_>
+    where
+        T: BBCodeCallbackOutput,
+    {
+        self.tag_impl(name, Some(value.display()), f)
     }
 
     pub fn text(&mut self, text: impl Display) {
@@ -42,7 +56,7 @@ impl BBCode {
         T: BBCodeCallbackOutput,
     {
         if let Some(value) = value {
-            write!(self.0, "[{name}=\"{value}\"]").unwrap();
+            write!(self.0, "[{name}{value}]").unwrap();
         } else {
             write!(self.0, "[{name}]").unwrap();
         }
@@ -58,6 +72,60 @@ impl Display for BBCode {
         self.0.fmt(f)
     }
 }
+
+struct SingleArg<T>(T);
+
+impl<T: Display> Display for SingleArg<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "=\"{}\"", self.0)
+    }
+}
+
+trait NamedArg {
+    fn display(&self) -> impl Display;
+}
+
+impl<K: Display, V: Display> NamedArg for (K, V) {
+    fn display(&self) -> impl Display {
+        struct Impl<'a, K, V>(&'a K, &'a V);
+        impl<K: Display, V: Display> Display for Impl<'_, K, V> {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                write!(f, " {}=\"{}\"", self.0, self.1)
+            }
+        }
+        Impl(&self.0, &self.1)
+    }
+}
+
+pub trait BBCodeMultiArgs {
+    fn display(&self) -> impl Display;
+}
+
+macro_rules! tuple_args {
+    ($($i:tt $ty:ident),*) => {
+        #[allow(unused_parens)]
+        impl<$($ty,)*> BBCodeMultiArgs for ($($ty,)*)
+        where
+            $($ty: NamedArg,)*
+        {
+            fn display(&self) -> impl Display {
+                struct Impl<'a, $($ty,)*>(&'a ($($ty,)*));
+                impl<$($ty,)*> fmt::Display for Impl<'_, $($ty,)*>
+                where
+                    $($ty: NamedArg,)*
+                {
+                    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                        $(write!(f, "{}", self.0.$i.display())?;)*
+                        Ok(())
+                    }
+                }
+                Impl(self)
+
+            }
+        }
+    };
+}
+all_the_tuples!(tuple_args);
 
 pub trait BBCodeCallbackOutput {
     type WithThis<'a>;
