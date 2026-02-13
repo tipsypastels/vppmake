@@ -1,6 +1,13 @@
+use std::sync::OnceLock;
+
 // TODO: Replace with main once merged.
 const BASE: &str =
     "https://raw.githubusercontent.com/tipsypastels/vppmake/refs/heads/rewrite/assets/";
+
+pub fn egg_asset() -> &'static str {
+    static EGG_ASSET: OnceLock<Box<str>> = OnceLock::new();
+    EGG_ASSET.get_or_init(|| asset("pokemon/egg.png"))
+}
 
 pub fn pokemon_asset(key: &str, species_key: &str) -> Box<str> {
     asset(["pokemon/", key, "-", species_key, ".png"])
