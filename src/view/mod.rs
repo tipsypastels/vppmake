@@ -85,7 +85,7 @@ pub fn render_room(bb: &mut BBCode, state: &State) -> Result<()> {
                         bb.text(&pokemon.name);
                     })
                     .tag("slide", |bb| {
-                        bb.text(format!("{pokemon:?}")).text("[tab=2]x[/tab]");
+                        bb.text(format!("{pokemon:?}"));
                     });
                 }
                 Ok(())
