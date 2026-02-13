@@ -36,8 +36,6 @@ pub async fn fetch(src: &Source) -> Result<Map<Species>> {
         }
     }
 
-    dbg!(&out);
-
     Ok(Arc::new(out))
 }
 

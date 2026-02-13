@@ -1,8 +1,9 @@
 mod model;
 mod query;
+mod state;
 mod view;
 
-use self::model::Source;
+use self::{model::Source, state::State};
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use std::path::Path;
@@ -27,10 +28,18 @@ async fn main() -> Result<()> {
     let src_text = add_keys_to_table_values(&src_text)?;
     let src: Source = toml::from_str(&src_text)?;
 
-    query::species::fetch(&src).await?;
+    let (species, post_count) = tokio::try_join!(
+        query::species::fetch(&src),
+        query::post_count::fetch(&src.profile),
+    )?;
 
-    // let post_count = query::post_count::fetch(src.profile()).await?;
-    // println!("Got post count: {post_count}.");
+    let state = State {
+        src,
+        species,
+        post_count,
+    };
+
+    dbg!(state);
 
     Ok(())
 }
