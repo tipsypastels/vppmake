@@ -137,7 +137,8 @@ fn render_room_member_info(bb: &mut BBCode, state: &State, member: &RoomMember) 
                                         .set("cursor", "default")
                                         .set("user-select", "none")
                                         .set("width", TYPE_ICON_SIZE)
-                                        .set("height", TYPE_ICON_SIZE),
+                                        .set("height", TYPE_ICON_SIZE)
+                                        .set("margin-left", "0.5rem"),
                                     |bb| {
                                         bb.text(type_icon_asset(&r#type.key));
                                     },
