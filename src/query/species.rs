@@ -57,14 +57,8 @@ impl Fetcher {
         let this = self.clone();
 
         tokio::spawn(async move {
-            match this.fetch_inner(species_info).await {
-                Ok(line) => {
-                    let _ = this.tx.send(Ok(line)).await;
-                }
-                Err(error) => {
-                    let _ = this.tx.send(Err(error)).await;
-                }
-            };
+            let res = this.fetch_inner(species_info).await;
+            let _ = this.tx.send(res).await;
         });
     }
 
@@ -79,7 +73,6 @@ impl Fetcher {
         let Some(to_key) = to_key else {
             return Ok(std::iter::once(from_mon).collect());
         };
-
         let Some(evo_chain_res) = &from_mon_api_species.evolution_chain else {
             bail!("Species {from_key} has no evolution chain.");
         };

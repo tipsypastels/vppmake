@@ -4,7 +4,7 @@ pub mod room;
 pub mod species;
 pub mod r#type;
 
-use self::{pokemon::Pokemon, profile::Profile, r#type::Type};
+use self::{pokemon::Pokemon, profile::Profile, room::Room, r#type::Type};
 use ahash::AHashMap;
 use kstring::KString;
 use serde::Deserialize;
@@ -17,4 +17,5 @@ pub struct Source {
     pub profile: Profile,
     pub types: Map<Type>,
     pub pokemon: Map<Pokemon>,
+    pub rooms: Map<Room>,
 }
