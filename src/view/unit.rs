@@ -21,3 +21,11 @@ pub fn absolute(
     }
     [(a, Px(av)), (b, Px(bv))]
 }
+
+pub struct Px(pub u16);
+
+impl fmt::Display for Px {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}px", self.0)
+    }
+}

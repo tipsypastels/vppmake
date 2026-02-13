@@ -17,6 +17,10 @@ pub fn room_asset(room_key: &str) -> Box<str> {
     asset(["rooms/", room_key, ".png"])
 }
 
+pub fn type_icon_asset(type_key: &str) -> Box<str> {
+    asset(["types/icons/", type_key, ".svg"])
+}
+
 fn asset(path: impl AsAssetPath) -> Box<str> {
     Box::from(path.append_to(BASE.to_string()))
 }

@@ -12,11 +12,13 @@ use crate::{
     state::State,
 };
 use anyhow::Result;
-use assets::{egg_asset, pokemon_asset, room_asset};
+use assets::{egg_asset, pokemon_asset, room_asset, type_icon_asset};
+use unit::Px;
 
 const SPARKLE: &str = "url('/images/sparkle.gif')";
 const TABS_WIDTH: usize = 500;
 const TABS_HEADER_PADDING: &str = "0.25rem 0.5rem";
+const TYPE_ICON_SIZE: Px = Px(20);
 
 pub fn render(state: &State) -> Result<String> {
     let mut bb = BBCode::new();
@@ -109,17 +111,44 @@ fn render_room_member_info(bb: &mut BBCode, state: &State, member: &RoomMember) 
         bb.tag_with(
             "div",
             Css::new()
-                .set("font-weight", "bold")
-                .set("font-size", "1.25rem")
+                .set("display", "flex")
                 .set("margin-bottom", "0.5rem"),
             |bb| {
-                bb.text("\"")
-                    .text(&pokemon.name)
-                    .text("\" the ")
-                    .text(species.map(|s| s.name.as_str()).unwrap_or("Egg"));
+                bb.tag_with(
+                    "div",
+                    Css::new()
+                        .set("flex-grow", "1")
+                        .set("font-weight", "bold")
+                        .set("font-size", "1.25rem"),
+                    |bb| {
+                        bb.text("\"")
+                            .text(&pokemon.name)
+                            .text("\" the ")
+                            .text(species.map(|s| s.name.as_str()).unwrap_or("Egg"));
+                    },
+                )
+                .tag_with("div", Css::new(), |bb| {
+                    if let Some(species) = species {
+                        for r#type in &species.types {
+                            bb.tag_with("title", &r#type.name, |bb| {
+                                bb.tag_with(
+                                    "cimg",
+                                    Css::new()
+                                        .set("cursor", "default")
+                                        .set("user-select", "none")
+                                        .set("width", TYPE_ICON_SIZE)
+                                        .set("height", TYPE_ICON_SIZE),
+                                    |bb| {
+                                        bb.text(type_icon_asset(&r#type.key));
+                                    },
+                                );
+                            });
+                        }
+                    }
+                });
             },
-        );
-        bb.text(format!("{pokemon:?}"));
+        )
+        .text(format!("{pokemon:?}"));
     });
 
     Ok(())
