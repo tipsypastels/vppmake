@@ -30,6 +30,18 @@ impl BBCode {
         self.tag_impl(name, Some(SingleArg(value)), f)
     }
 
+    pub fn tag_with_unquoted<T>(
+        &mut self,
+        name: impl Display,
+        value: impl Display,
+        f: impl FnOnce(&mut Self) -> T,
+    ) -> T::WithThis<'_>
+    where
+        T: BBCodeCallbackOutput,
+    {
+        self.tag_impl(name, Some(SingleArgUnquoted(value)), f)
+    }
+
     pub fn tag_with_multi<T>(
         &mut self,
         name: impl Display,
@@ -42,8 +54,9 @@ impl BBCode {
         self.tag_impl(name, Some(value.display()), f)
     }
 
-    pub fn text(&mut self, text: impl Display) {
+    pub fn text(&mut self, text: impl Display) -> &mut Self {
         write!(self.0, "{text}").unwrap();
+        self
     }
 
     fn tag_impl<T>(
@@ -78,6 +91,14 @@ struct SingleArg<T>(T);
 impl<T: Display> Display for SingleArg<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "=\"{}\"", self.0)
+    }
+}
+
+struct SingleArgUnquoted<T>(T);
+
+impl<T: Display> Display for SingleArgUnquoted<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "={}", self.0)
     }
 }
 

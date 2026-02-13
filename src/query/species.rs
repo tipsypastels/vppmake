@@ -4,8 +4,8 @@ use crate::model::{
     species::{Species, SpeciesLine},
     r#type::{Type, Types},
 };
-use ahash::AHashMap;
 use anyhow::{Context, Result, bail};
+use indexmap::IndexMap;
 use kstring::KString;
 use rustemon::{
     Follow, client::RustemonClient as Client, model::evolution as api_evo, model::pokemon as api,
@@ -19,7 +19,7 @@ use tokio::sync::mpsc;
 
 pub async fn fetch(src: &Source) -> Result<Map<Species>> {
     let (fetcher, mut rx) = Fetcher::new(src.types.clone());
-    let mut out = AHashMap::new();
+    let mut out = IndexMap::with_hasher(ahash::RandomState::new());
 
     for pokemon in src.pokemon.values() {
         fetcher.fetch(pokemon.species.clone());

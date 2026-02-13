@@ -48,7 +48,9 @@ pub fn render_room(bb: &mut BBCode, state: &State) -> Result<()> {
                     bb.text(room_asset(&room.key));
                 });
 
-                for placement in room.pokemon.values() {
+                for (placement_i, placement) in room.pokemon.values().enumerate() {
+                    let tab_no = placement_i + 1;
+
                     let pokemon = state.src.pokemon.find(&placement.key)?;
                     let growth = state.growth_state(pokemon)?;
                     let species = growth.species_key();
@@ -59,16 +61,36 @@ pub fn render_room(bb: &mut BBCode, state: &State) -> Result<()> {
                         .setopt(pokemon.shiny, "background-image", SPARKLE)
                         .extend(absolute(placement.position.unpack()));
 
-                    bb.tag_with("cimg", sprite_css, |bb| {
-                        if let Some(species) = species {
-                            bb.text(pokemon_asset(&pokemon.key, species));
-                        } else {
-                            bb.text(egg_asset());
-                        }
+                    bb.tag_with("title", &pokemon.name, |bb| {
+                        bb.tag_with_unquoted("tab", tab_no, |bb| {
+                            bb.tag_with("cimg", sprite_css, |bb| {
+                                if let Some(species) = species {
+                                    bb.text(pokemon_asset(&pokemon.key, species));
+                                } else {
+                                    bb.text(egg_asset());
+                                }
+                            });
+                        });
+                    });
+                }
+
+                Ok(())
+            })?;
+
+            bb.tag_with_multi("tabs", (("width", "100%"),), |bb| {
+                for placement in room.pokemon.values() {
+                    let pokemon = state.src.pokemon.find(&placement.key)?;
+
+                    bb.tag("slide_header", |bb| {
+                        bb.text(&pokemon.name);
+                    })
+                    .tag("slide", |bb| {
+                        bb.text(format!("{pokemon:?}")).text("[tab=2]x[/tab]");
                     });
                 }
                 Ok(())
             })?;
+
             Ok(())
         })?;
     }

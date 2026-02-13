@@ -5,8 +5,8 @@ pub mod species;
 pub mod r#type;
 
 use self::{pokemon::Pokemon, profile::Profile, room::Room, species::Species, r#type::Type};
-use ahash::AHashMap;
 use anyhow::{Context, Result};
+use indexmap::IndexMap;
 use kstring::KString;
 use serde::Deserialize;
 use std::sync::Arc;
@@ -19,8 +19,7 @@ pub struct Source {
     pub rooms: Map<Room>,
 }
 
-// TODO: Use indexmap with ahasher.
-pub type Map<T> = Arc<AHashMap<KString, T>>;
+pub type Map<T> = Arc<IndexMap<KString, T, ahash::RandomState>>;
 
 pub trait MapFind<T: MapFindLabel> {
     fn find(&self, key: &str) -> Result<&T>;
