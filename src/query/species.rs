@@ -1,7 +1,7 @@
 use crate::model::{
     Map, Source,
     pokemon::PokemonSpecies,
-    species::Species,
+    species::{Species, SpeciesLine},
     r#type::{Type, Types},
 };
 use ahash::AHashMap;
@@ -11,14 +11,11 @@ use rustemon::{
     Follow, client::RustemonClient as Client, model::evolution as api_evo, model::pokemon as api,
     pokemon::pokemon,
 };
-use smallvec::SmallVec;
 use std::sync::Arc;
 use tokio::sync::mpsc;
 
 // NOTE: In PokeAPI, "species" are the base pokemon and "pokemon" are variations such as "-gmax", etc.
 // We don't use that distinction, we count every form variation as a distinct "species".
-
-type Line<T> = SmallVec<[T; 3]>;
 
 pub async fn fetch(src: &Source) -> Result<Map<Species>> {
     let (fetcher, mut rx) = Fetcher::new(src.types.clone());
@@ -42,12 +39,12 @@ pub async fn fetch(src: &Source) -> Result<Map<Species>> {
 #[derive(Clone)]
 struct Fetcher {
     client: Arc<Client>,
-    tx: mpsc::Sender<Result<Line<Species>>>,
+    tx: mpsc::Sender<Result<SpeciesLine<Species>>>,
     types: Map<Type>,
 }
 
 impl Fetcher {
-    fn new(types: Map<Type>) -> (Self, mpsc::Receiver<Result<Line<Species>>>) {
+    fn new(types: Map<Type>) -> (Self, mpsc::Receiver<Result<SpeciesLine<Species>>>) {
         let client = Arc::new(Client::default());
         let (tx, rx) = mpsc::channel(4);
         (Self { client, tx, types }, rx)
@@ -62,7 +59,7 @@ impl Fetcher {
         });
     }
 
-    async fn fetch_inner(&self, species_info: PokemonSpecies) -> Result<Line<Species>> {
+    async fn fetch_inner(&self, species_info: PokemonSpecies) -> Result<SpeciesLine<Species>> {
         let (from_key, to_key) = match &species_info {
             PokemonSpecies::Exact { species } => (species, None),
             PokemonSpecies::Line { from, to } => (from, Some(to)),
@@ -79,15 +76,25 @@ impl Fetcher {
 
         let evo_chain = evo_chain_res.follow(&self.client).await?;
         let evo_keys = self.follow_evo_chain(&evo_chain.chain.evolves_to, to_key.as_deref())?;
-        let mut evo_mons = Line::new();
+        let mut evo_mons = SpeciesLine::new();
 
-        for evo_key in evo_keys {
-            evo_mons.push(self.fetch_one(evo_key).await?.0);
+        for evo_key in &evo_keys {
+            evo_mons.push(self.fetch_one(evo_key.clone()).await?.0);
         }
 
-        Ok(std::iter::once(from_mon)
+        let line_keys = std::iter::once(from_key.clone())
+            .chain(evo_keys.into_iter())
+            .collect::<SpeciesLine<KString>>();
+
+        let mut line = std::iter::once(from_mon)
             .chain(evo_mons.into_iter())
-            .collect())
+            .collect::<SpeciesLine<Species>>();
+
+        for species in &mut line {
+            species.line = line_keys.clone();
+        }
+
+        Ok(line)
     }
 
     async fn fetch_one(&self, key: KString) -> Result<(Species, api::PokemonSpecies)> {
@@ -98,7 +105,16 @@ impl Fetcher {
         let types = self.fetch_types(&pokemon.types)?;
 
         println!("Got species '{key}'.");
-        Ok((Species { key, name, types }, species))
+        Ok((
+            Species {
+                key,
+                name,
+                types,
+                // Will get overridden by caller.
+                line: SpeciesLine::new(),
+            },
+            species,
+        ))
     }
 
     async fn fetch_name(
@@ -145,7 +161,7 @@ impl Fetcher {
         &self,
         links: &[api_evo::ChainLink],
         target: Option<&str>,
-    ) -> Result<Line<KString>> {
+    ) -> Result<SpeciesLine<KString>> {
         fn no_branches(mut links: &[api_evo::ChainLink]) -> bool {
             while !links.is_empty() {
                 if links.len() > 1 {
@@ -156,8 +172,8 @@ impl Fetcher {
             true
         }
 
-        fn build_no_branches(mut links: &[api_evo::ChainLink]) -> Line<KString> {
-            let mut v = Line::new();
+        fn build_no_branches(mut links: &[api_evo::ChainLink]) -> SpeciesLine<KString> {
+            let mut v = SpeciesLine::new();
             while !links.is_empty() {
                 v.push(KString::from_ref(&links[0].species.name));
                 links = &links[0].evolves_to;
@@ -175,8 +191,8 @@ impl Fetcher {
         fn visit_branch_link(
             target: &str,
             link: &api_evo::ChainLink,
-            indices: Line<usize>,
-        ) -> Option<Line<usize>> {
+            indices: SpeciesLine<usize>,
+        ) -> Option<SpeciesLine<usize>> {
             if link.species.name == target {
                 return Some(indices);
             }
@@ -186,8 +202,8 @@ impl Fetcher {
         fn visit_branch_links(
             target: &str,
             links: &[api_evo::ChainLink],
-            parent_indices: Line<usize>,
-        ) -> Option<Line<usize>> {
+            parent_indices: SpeciesLine<usize>,
+        ) -> Option<SpeciesLine<usize>> {
             links.iter().enumerate().find_map(|(i, link)| {
                 let mut indices = parent_indices.clone();
                 indices.push(i);
@@ -195,11 +211,11 @@ impl Fetcher {
             })
         }
 
-        let Some(indices) = visit_branch_links(target, links, Line::new()) else {
+        let Some(indices) = visit_branch_links(target, links, SpeciesLine::new()) else {
             bail!("Could not find path to {target}.");
         };
 
-        let mut out = Line::new();
+        let mut out = SpeciesLine::new();
         let mut link = &links[indices[0]];
         out.push(KString::from_ref(&link.species.name));
 
