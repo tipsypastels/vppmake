@@ -1,24 +1,25 @@
 use crate::model::{
-    Map, MapFind, Source,
+    Map, Source,
     pokemon::PokemonSpecies,
     species::{Species, SpeciesLine},
     r#type::{Type, Types},
 };
 use anyhow::{Context, Result, bail};
+use futures::StreamExt;
 use indexmap::IndexMap;
 use kstring::KString;
 use rustemon::{
     Follow, client::RustemonClient as Client, model::evolution as api_evo, model::pokemon as api,
     pokemon::pokemon,
 };
-use std::sync::Arc;
+use std::{pin::pin, sync::Arc};
 use tokio::sync::mpsc;
 
 // NOTE: In PokeAPI, "species" are the base pokemon and "pokemon" are variations such as "-gmax", etc.
 // We don't use that distinction, we count every form variation as a distinct "species".
 
 pub async fn fetch(src: &Source) -> Result<Map<Species>> {
-    let (fetcher, mut rx) = Fetcher::new(src.types.clone());
+    let (fetcher, mut rx) = Fetcher::new();
     let mut out = IndexMap::with_hasher(ahash::RandomState::new());
 
     for pokemon in src.pokemon.values() {
@@ -40,14 +41,13 @@ pub async fn fetch(src: &Source) -> Result<Map<Species>> {
 struct Fetcher {
     client: Arc<Client>,
     tx: mpsc::Sender<Result<SpeciesLine<Species>>>,
-    types: Map<Type>,
 }
 
 impl Fetcher {
-    fn new(types: Map<Type>) -> (Self, mpsc::Receiver<Result<SpeciesLine<Species>>>) {
+    fn new() -> (Self, mpsc::Receiver<Result<SpeciesLine<Species>>>) {
         let client = Arc::new(Client::default());
         let (tx, rx) = mpsc::channel(4);
-        (Self { client, tx, types }, rx)
+        (Self { client, tx }, rx)
     }
 
     fn fetch(&self, species_info: PokemonSpecies) {
@@ -100,9 +100,10 @@ impl Fetcher {
     async fn fetch_one(&self, key: KString) -> Result<(Species, api::PokemonSpecies)> {
         let pokemon = pokemon::get_by_name(&key, &self.client).await?;
         let species = pokemon.species.follow(&self.client).await?;
-
-        let name = self.fetch_name(&pokemon, &species).await?;
-        let types = self.fetch_types(&pokemon.types)?;
+        let (name, types) = tokio::try_join!(
+            self.fetch_name(&pokemon, &species),
+            self.fetch_types(&pokemon.types)
+        )?;
 
         eprintln!("Got species '{key}'.");
         Ok((
@@ -122,34 +123,34 @@ impl Fetcher {
         pokemon: &api::Pokemon,
         species: &api::PokemonSpecies,
     ) -> Result<KString> {
-        macro_rules! en_name {
-            ($res:expr) => {
-                $res.names
-                    .iter()
-                    .find(|n| n.language.name == "en")
-                    .map(|n| KString::from_ref(&n.name))
-            };
-        }
         if let Some(form) = pokemon.forms.first()
-            && let Some(name) = en_name!(form.follow(&self.client).await?)
+            && let Some(name) = en_name_of!(form.follow(&self.client).await?)
         {
             return Ok(name);
         };
-        en_name!(species).with_context(|| format!("Unknown pokemon name: '{}'", pokemon.name))
+        en_name_of!(species).with_context(|| format!("No name for pokemon: '{}'", pokemon.name))
     }
 
-    fn fetch_types(&self, types: &[api::PokemonType]) -> Result<Types> {
-        let mut iter = types
-            .iter()
-            .map(|t| self.types.find(&t.type_.name).cloned());
-        let one = iter.next().context("Expected at least one type")??;
-        let types = if let Some(two) = iter.next() {
+    async fn fetch_types(&self, api_types: &[api::PokemonType]) -> Result<Types> {
+        let stream = futures::stream::iter(api_types).then(|api_type| async move {
+            let key = KString::from_ref(&api_type.type_.name);
+            let res = api_type.type_.follow(&self.client).await?;
+            let name = en_name_of!(res).with_context(|| format!("No name for type: '{key}'"))?;
+            anyhow::Ok(Type { key, name })
+        });
+        let mut stream = pin!(stream);
+
+        let one = stream
+            .next()
+            .await
+            .context("Expected at least one type.")??;
+        let types = if let Some(two) = stream.next().await {
             Types::Two(one, two?)
         } else {
             Types::One(one)
         };
-        if iter.next().is_some() {
-            bail!("Expected no more than two types");
+        if stream.next().await.is_some() {
+            bail!("Expected no more than two types.")
         }
         Ok(types)
     }
@@ -224,3 +225,13 @@ impl Fetcher {
         Ok(out)
     }
 }
+
+macro_rules! en_name_of {
+    ($res:expr) => {
+        $res.names
+            .iter()
+            .find(|n| n.language.name == "en")
+            .map(|n| KString::from_ref(&n.name))
+    };
+}
+use en_name_of;

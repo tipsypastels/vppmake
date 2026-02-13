@@ -3,7 +3,12 @@ mod bbcode;
 mod css;
 mod unit;
 
-use self::{bbcode::BBCode, css::Css, unit::absolute};
+use self::{
+    assets::{egg_asset, pokemon_asset, room_asset, type_icon_asset},
+    bbcode::BBCode,
+    css::Css,
+    unit::{Px, absolute},
+};
 use crate::{
     model::{
         MapFind,
@@ -12,8 +17,6 @@ use crate::{
     state::State,
 };
 use anyhow::Result;
-use assets::{egg_asset, pokemon_asset, room_asset, type_icon_asset};
-use unit::Px;
 
 const SPARKLE: &str = "url('/images/sparkle.gif')";
 const TABS_WIDTH: usize = 500;
@@ -22,13 +25,11 @@ const TYPE_ICON_SIZE: Px = Px(20);
 
 pub fn render(state: &State) -> Result<String> {
     let mut bb = BBCode::new();
-
     bb.tag_with_multi(
         "tabs",
         (("width", TABS_WIDTH), ("block_align", "bcenter")),
         |bb| render_rooms(bb, state),
     )?;
-
     Ok(bb.to_string())
 }
 
@@ -61,7 +62,6 @@ fn render_room(bb: &mut BBCode, state: &State, room: &Room) -> Result<()> {
             }
             Ok(())
         })?;
-
         Ok(())
     })?;
 
@@ -73,22 +73,24 @@ fn render_room_member_sprite(bb: &mut BBCode, state: &State, member: &RoomMember
     let growth = state.growth_state(pokemon)?;
     let species = growth.species_key();
 
-    let sprite_css = Css::new()
-        .set("cursor", "default")
-        .set("user-select", "none")
-        .set("position", "absolute")
-        .setopt(member.flipped, "transform", "scaleX(-1)")
-        .setopt(pokemon.shiny, "background-image", SPARKLE)
-        .extend(absolute(member.position.unpack()));
-
     bb.tag_with("title", &pokemon.name, |bb| {
-        bb.tag_with("cimg", sprite_css, |bb| {
-            if let Some(species) = species {
-                bb.text(pokemon_asset(&pokemon.key, species));
-            } else {
-                bb.text(egg_asset());
-            }
-        });
+        bb.tag_with(
+            "cimg",
+            Css::new()
+                .set("cursor", "default")
+                .set("user-select", "none")
+                .set("position", "absolute")
+                .setopt(member.flipped, "transform", "scaleX(-1)")
+                .setopt(pokemon.shiny, "background-image", SPARKLE)
+                .extend(absolute(member.position.unpack())),
+            |bb| {
+                if let Some(species) = species {
+                    bb.text(pokemon_asset(&pokemon.key, species));
+                } else {
+                    bb.text(egg_asset());
+                }
+            },
+        );
     });
 
     Ok(())

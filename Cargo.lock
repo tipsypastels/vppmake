@@ -2517,6 +2517,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
+ "futures",
  "indexmap",
  "kstring",
  "reqwest 0.13.1",

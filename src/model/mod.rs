@@ -4,7 +4,7 @@ pub mod room;
 pub mod species;
 pub mod r#type;
 
-use self::{pokemon::Pokemon, profile::Profile, room::Room, species::Species, r#type::Type};
+use self::{pokemon::Pokemon, profile::Profile, room::Room, species::Species};
 use anyhow::{Context, Result};
 use indexmap::IndexMap;
 use kstring::KString;
@@ -14,7 +14,6 @@ use std::sync::Arc;
 #[derive(Debug, Deserialize, Clone)]
 pub struct Source {
     pub profile: Profile,
-    pub types: Map<Type>,
     pub pokemon: Map<Pokemon>,
     pub rooms: Map<Room>,
 }
@@ -42,8 +41,4 @@ impl MapFindLabel for Pokemon {
 
 impl MapFindLabel for Species {
     const LABEL: &'static str = "species";
-}
-
-impl MapFindLabel for Type {
-    const LABEL: &'static str = "type";
 }

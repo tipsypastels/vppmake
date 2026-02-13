@@ -7,8 +7,6 @@ use serde::Deserialize;
 pub struct Type {
     pub key: KString,
     pub name: KString,
-    pub icon: KString,
-    pub color: [u8; 3],
 }
 
 #[derive(Debug, Clone)]
