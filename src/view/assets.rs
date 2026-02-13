@@ -1,4 +1,6 @@
-const BASE: &str = "https://github.com/tipsypastels/vppmake/blob/main/";
+// TODO: Replace with main once merged.
+const BASE: &str =
+    "https://raw.githubusercontent.com/tipsypastels/vppmake/refs/heads/rewrite/assets/";
 
 pub fn room_asset(room_key: &str) -> Box<str> {
     asset(["rooms/", room_key, ".png"])

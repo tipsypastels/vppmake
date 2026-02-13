@@ -6,6 +6,7 @@ use serde::Deserialize;
 pub struct Room {
     pub key: KString,
     pub name: KString,
+    pub color: [u8; 3],
     pub pokemon: Map<RoomMember>,
 }
 

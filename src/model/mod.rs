@@ -19,6 +19,7 @@ pub struct Source {
     pub rooms: Map<Room>,
 }
 
+// TODO: Use indexmap with ahasher.
 pub type Map<T> = Arc<AHashMap<KString, T>>;
 
 pub trait MapFind<T: MapFindLabel> {
