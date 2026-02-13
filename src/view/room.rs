@@ -1,6 +1,6 @@
 use super::bbcode::BBCode;
 use crate::{
-    model::{MapFindPokemon, MapFindSpecies, room::Room},
+    model::{MapFind, room::Room},
     state::State,
 };
 use anyhow::Result;

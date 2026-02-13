@@ -1,7 +1,7 @@
 pub mod growth;
 
 use self::growth::GrowthState;
-use crate::model::{Map, MapFindSpecies, Source, pokemon::Pokemon, species::Species};
+use crate::model::{Map, MapFind, Source, pokemon::Pokemon, species::Species};
 use anyhow::Result;
 
 #[derive(Debug, Clone)]

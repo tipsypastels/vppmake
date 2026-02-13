@@ -1,6 +1,5 @@
-use std::fmt::{self, Display, Write};
-
 use anyhow::Result;
+use std::fmt::{self, Display, Write};
 
 #[derive(Debug)]
 pub struct BBCode(String);

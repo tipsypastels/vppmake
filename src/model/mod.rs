@@ -21,24 +21,29 @@ pub struct Source {
 
 pub type Map<T> = Arc<AHashMap<KString, T>>;
 
-macro_rules! map_access_traits {
-    ($(($trait:ident, $ty:ty, $label:literal)),*$(,)?) => {
-        $(
-            pub trait $trait {
-                fn find(&self, key: &str) -> Result<&$ty>;
-            }
-
-            impl $trait for Map<$ty> {
-                fn find(&self, key: &str) -> Result<&$ty> {
-                    self.get(key).with_context(|| format!(concat!("Unknown ", $label, ": {}"), key))
-                }
-            }
-        )*
-    };
+pub trait MapFind<T: MapFindLabel> {
+    fn find(&self, key: &str) -> Result<&T>;
 }
 
-map_access_traits! {
-    (MapFindPokemon, Pokemon, "pokemon"),
-    (MapFindSpecies, Species, "species"),
-    (MapFindType, Type, "type"),
+impl<T: MapFindLabel> MapFind<T> for Map<T> {
+    fn find(&self, key: &str) -> Result<&T> {
+        self.get(key)
+            .with_context(|| format!("Unknown {}: {}", T::LABEL, key))
+    }
+}
+
+pub trait MapFindLabel {
+    const LABEL: &'static str;
+}
+
+impl MapFindLabel for Pokemon {
+    const LABEL: &'static str = "pokemon";
+}
+
+impl MapFindLabel for Species {
+    const LABEL: &'static str = "species";
+}
+
+impl MapFindLabel for Type {
+    const LABEL: &'static str = "type";
 }

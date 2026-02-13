@@ -1,5 +1,5 @@
 use crate::model::{
-    Map, MapFindType, Source,
+    Map, MapFind, Source,
     pokemon::PokemonSpecies,
     species::{Species, SpeciesLine},
     r#type::{Type, Types},
