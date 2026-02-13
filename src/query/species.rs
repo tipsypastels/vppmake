@@ -1,5 +1,5 @@
 use crate::model::{
-    Map, Source,
+    Map, MapFindType, Source,
     pokemon::PokemonSpecies,
     species::{Species, SpeciesLine},
     r#type::{Type, Types},
@@ -139,12 +139,9 @@ impl Fetcher {
     }
 
     fn fetch_types(&self, types: &[api::PokemonType]) -> Result<Types> {
-        let mut iter = types.iter().map(|t| {
-            self.types
-                .get(&*t.type_.name)
-                .cloned()
-                .with_context(|| format!("Invalid type: '{}'", t.type_.name))
-        });
+        let mut iter = types
+            .iter()
+            .map(|t| self.types.find(&t.type_.name).cloned());
         let one = iter.next().context("Expected at least one type")??;
         let types = if let Some(two) = iter.next() {
             Types::Two(one, two?)

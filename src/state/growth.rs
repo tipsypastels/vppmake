@@ -19,7 +19,7 @@ pub enum GrowthState {
 }
 
 impl GrowthState {
-    pub fn of(pokemon: &Pokemon, species: &Species, post_count: u16) -> Self {
+    pub(super) fn of(pokemon: &Pokemon, species: &Species, post_count: u16) -> Self {
         let grown = || Self::Grown {
             species: species.line.last().unwrap_or(&species.key).clone(),
         };
@@ -55,6 +55,13 @@ impl GrowthState {
         Self::Growing {
             species: species.line[if ratio >= 0.5 { 1 } else { 0 }].clone(),
             grown_at_posts: bounds.grown,
+        }
+    }
+
+    pub fn species_key(&self) -> Option<&KString> {
+        match self {
+            Self::Egg { .. } => None,
+            Self::Growing { species, .. } | Self::Grown { species } => Some(species),
         }
     }
 }

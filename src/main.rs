@@ -4,7 +4,7 @@ mod state;
 mod view;
 
 use self::{model::Source, state::State};
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use std::path::Path;
 
@@ -38,6 +38,9 @@ async fn main() -> Result<()> {
         species,
         post_count,
     };
+
+    let bbcode = view::render(&state).context("Rendering failed.")?;
+    println!("{bbcode}");
 
     Ok(())
 }

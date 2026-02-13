@@ -150,3 +150,6 @@ name = "Island"
 
 [rooms.island.pokemon.rainy]
 position = { bottom = 239, right = 180 }
+
+[rooms.island.pokemon.oracle]
+position = { bottom = 239, right = 180 }
