@@ -1,21 +1,20 @@
-pub mod map;
 pub mod pokemon;
 pub mod profile;
 pub mod room;
+pub mod species;
 pub mod r#type;
 
-use self::{map::Map, pokemon::Pokemon, profile::Profile, r#type::Type};
+use self::{pokemon::Pokemon, profile::Profile, r#type::Type};
+use ahash::AHashMap;
+use kstring::KString;
 use serde::Deserialize;
+use std::sync::Arc;
 
-#[derive(Debug, Deserialize)]
+pub type Map<T> = Arc<AHashMap<KString, T>>;
+
+#[derive(Debug, Deserialize, Clone)]
 pub struct Source {
-    profile: Profile,
-    types: Map<Type>,
-    pokemon: Map<Pokemon>,
-}
-
-impl Source {
-    pub fn profile(&self) -> &Profile {
-        &self.profile
-    }
+    pub profile: Profile,
+    pub types: Map<Type>,
+    pub pokemon: Map<Pokemon>,
 }

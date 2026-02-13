@@ -1,20 +1,20 @@
-use super::map::Map;
+use super::Map;
 use kstring::KString;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Room {
-    key: KString,
-    name: KString,
-    pokemon: Map<RoomMember>,
+    pub key: KString,
+    pub name: KString,
+    pub pokemon: Map<RoomMember>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct RoomMember {
-    key: KString,
+    pub key: KString,
     #[serde(default)]
-    flipped: bool,
-    position: RoomMemberPosition,
+    pub flipped: bool,
+    pub position: RoomMemberPosition,
 }
 
 #[derive(Debug, Deserialize, Copy, Clone)]

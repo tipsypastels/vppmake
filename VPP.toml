@@ -118,7 +118,7 @@ points = 70
 
 [pokemon.canon_gay]
 name = "Canonically Gay"
-species = { exact = "pikachu" }
+species = { exact = "pikachu-gmax" }
 growth = "grown"
 shiny = true
 points = 0

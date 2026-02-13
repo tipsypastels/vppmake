@@ -3,13 +3,13 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Pokemon {
-    key: KString,
-    name: KString,
-    species: PokemonSpecies,
-    growth: PokemonGrowth,
+    pub key: KString,
+    pub name: KString,
+    pub species: PokemonSpecies,
+    pub growth: PokemonGrowth,
     #[serde(default)]
-    shiny: bool,
-    points: u16,
+    pub shiny: bool,
+    pub points: u16,
 }
 
 #[derive(Debug, Deserialize, Clone)]

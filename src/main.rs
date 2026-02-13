@@ -27,8 +27,10 @@ async fn main() -> Result<()> {
     let src_text = add_keys_to_table_values(&src_text)?;
     let src: Source = toml::from_str(&src_text)?;
 
-    let post_count = query::post_count::fetch(src.profile()).await?;
-    println!("Got post count: {post_count}.");
+    query::species::fetch(&src).await?;
+
+    // let post_count = query::post_count::fetch(src.profile()).await?;
+    // println!("Got post count: {post_count}.");
 
     Ok(())
 }
