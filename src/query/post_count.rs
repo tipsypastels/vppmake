@@ -11,6 +11,6 @@ pub async fn fetch(profile: &Profile) -> Result<u16> {
     let text = node.text().next().context("selector has no text")?;
     let count = text.trim().replace(",", "").parse()?;
 
-    println!("Got post count '{count}'.");
+    eprintln!("Got post count '{count}'.");
     Ok(count)
 }

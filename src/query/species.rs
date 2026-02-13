@@ -104,7 +104,7 @@ impl Fetcher {
         let name = self.fetch_name(&pokemon, &species).await?;
         let types = self.fetch_types(&pokemon.types)?;
 
-        println!("Got species '{key}'.");
+        eprintln!("Got species '{key}'.");
         Ok((
             Species {
                 key,

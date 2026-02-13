@@ -42,22 +42,18 @@ fn render_room(bb: &mut BBCode, state: &State, room: &Room) -> Result<()> {
         bb.tag_with("div", Css::new().set("margin", TABS_HEADER_PADDING), |bb| {
             bb.text(&room.name);
         });
-    });
-
-    bb.tag("slide", |bb| {
+    })
+    .tag("slide", |bb| {
         bb.tag_with("div", Css::new().set("position", "relative"), |bb| {
             bb.tag_with("cimg", "user-select:none", |bb| {
                 bb.text(room_asset(&room.key));
             });
-
             for (member_i, member) in room.pokemon.values().enumerate() {
                 render_room_member_sprite(bb, state, room, member_i, member)?;
             }
-
             Ok(())
-        })?;
-
-        bb.tag_with_multi("tabs", (("width", "100%"),), |bb| {
+        })?
+        .tag_with_multi("tabs", (("width", "100%"),), |bb| {
             for member in room.pokemon.values() {
                 render_room_member_info(bb, state, member)?;
             }
