@@ -9,5 +9,8 @@ pub async fn fetch(profile: &Profile) -> Result<u16> {
     let sel = Selector::parse(&profile.post_count_query).expect("invalid selector");
     let node = html.select(&sel).next().context("no match for selector")?;
     let text = node.text().next().context("selector has no text")?;
-    Ok(text.trim().replace(",", "").parse()?)
+    let count = text.trim().replace(",", "").parse()?;
+
+    println!("Got post count '{count}'.");
+    Ok(count)
 }

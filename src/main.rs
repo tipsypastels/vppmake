@@ -39,8 +39,6 @@ async fn main() -> Result<()> {
         post_count,
     };
 
-    dbg!(state);
-
     Ok(())
 }
 

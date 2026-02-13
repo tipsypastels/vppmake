@@ -27,24 +27,39 @@ pub enum PokemonSpecies {
     },
 }
 
-#[derive(Debug, Deserialize, Copy, Clone)]
-#[serde(untagged)]
-pub enum PokemonGrowth {
-    Stage(PokemonGrowthStage),
-    Bounds(PokemonGrowthBounds),
+impl PokemonSpecies {
+    pub fn from_key(&self) -> &KString {
+        match self {
+            Self::Exact { species } => species,
+            Self::Line { from, .. } => from,
+        }
+    }
+
+    pub fn to_key(&self) -> Option<&KString> {
+        match self {
+            Self::Exact { .. } => None,
+            Self::Line { to, .. } => to.as_ref(),
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Copy, Clone)]
+#[serde(untagged)]
+pub enum PokemonGrowth {
+    Grown(PokemonGrowthGrown),
+    Bounds(PokemonGrowthBounds),
+}
+
+// Only here so serde can parse it as a string literal "grown".
+#[derive(Debug, Deserialize, Copy, Clone)]
 #[serde(rename_all = "lowercase")]
-pub enum PokemonGrowthStage {
-    Egg,
-    Growing { level: u8 },
+pub enum PokemonGrowthGrown {
     Grown,
 }
 
 #[derive(Debug, Deserialize, Copy, Clone)]
 pub struct PokemonGrowthBounds {
-    start: u16,
-    hatch: u16,
-    grown: u16,
+    pub start: u16,
+    pub hatch: u16,
+    pub grown: u16,
 }

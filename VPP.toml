@@ -129,6 +129,18 @@ species = { line = "psyduck" }
 growth = { start = 7459, hatch = 7474, grown = 7619 }
 points = 60
 
+[pokemon.froggy]
+name = "Froggy"
+species = { line = "poliwag", to = "politoed" }
+growth = { start = 7807, hatch = 7822, grown = 7982 }
+points = 70
+
+[pokemon.oracle]
+name = "Oracle"
+species = { line = "natu" }
+growth = { start = 8654, hatch = 8669, grown = 8814 }
+points = 60
+
 # -------------------------------------------------------------------------- #
 #                                    Rooms                                   #
 # -------------------------------------------------------------------------- #

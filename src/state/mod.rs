@@ -1,3 +1,5 @@
+pub mod growth;
+
 use crate::model::{Map, Source, species::Species};
 
 #[derive(Debug, Clone)]
